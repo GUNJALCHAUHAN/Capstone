@@ -11,7 +11,6 @@ import streamlit as st
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-import cv2
 
 # Load model
 @st.cache_resource
@@ -21,22 +20,50 @@ def load_model():
 
 model = load_model()
 
-# Title
+# Define class labels manually if you don't have access to train_generator.class_indices
+class_labels = [
+    "Apple___Apple_scab",
+    "Apple___Black_rot",
+    "Apple___Cedar_apple_rust",
+    "Apple___healthy",
+    "Blueberry___healthy",
+    "Cherry_(including_sour)___Powdery_mildew",
+    "Cherry_(including_sour)___healthy",
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+    "Corn_(maize)___Common_rust_",
+    "Corn_(maize)___Northern_Leaf_Blight",
+    "Corn_(maize)___healthy",
+    "Grape___Black_rot",
+    "Grape___Esca_(Black_Measles)",
+    "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)",
+    "Grape___healthy",
+    "Orange___Haunglongbing_(Citrus_greening)",
+    "Peach___Bacterial_spot"
+]
+
+# Page title
 st.title("🌾 Crop Disease Detection")
 
 # Upload image
-uploaded_file = st.file_uploader("Upload a leaf image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("📤 Upload a leaf image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert('RGB')
-    st.image(image, caption='Uploaded Image', use_column_width=True)
+    st.image(image, caption='📷 Uploaded Image', use_column_width=True)
 
-    # Preprocess
+    # Preprocess image
     img = image.resize((224, 224))
-    img_array = np.expand_dims(np.array(img)/255.0, axis=0)
+    img_array = np.expand_dims(np.array(img) / 255.0, axis=0)
 
     # Predict
     prediction = model.predict(img_array)
-    predicted_class = np.argmax(prediction)
+    predicted_class_id = np.argmax(prediction)
+    confidence = np.max(prediction)
 
-    st.success(f"Predicted class ID: {predicted_class}")
+    # Decode class
+    predicted_label = class_labels[predicted_class_id]
+
+    # Show prediction
+    st.success(f"✅ **Predicted Class:** {predicted_label}")
+    st.info(f"🔍 **Confidence:** {confidence * 100:.2f}%")
+
