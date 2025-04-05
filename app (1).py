@@ -16,7 +16,7 @@ import cv2
 # Load model
 @st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model('/content/drive/MyDrive/crop_disease_model.h5')
+    model = tf.keras.models.load_model('crop_disease_model.h5')
     return model
 
 model = load_model()
